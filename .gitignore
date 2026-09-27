@@ -16,6 +16,8 @@ __pycache__/
 *.pt
 *.pth
 *.ckpt
+results/*.npz
+results/ablation_no_noise/
 *.sqlite*
 *.db
 *.pem

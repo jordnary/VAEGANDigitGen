@@ -1,0 +1,449 @@
+{
+  "vae_base": {
+    "posterior_l1": 53.81148910522461,
+    "posterior_l1_mc_se": 0.006800152827054262,
+    "posterior_mae": 0.06863710284233093,
+    "mean_mae": 0.06756478548049927,
+    "kl": 6.746488094329834,
+    "config": {
+      "epochs": 160,
+      "batch_size": 256,
+      "lr": 0.001,
+      "warmup": 15,
+      "seed": 42
+    },
+    "feature_frechet": 57.11702563596282,
+    "prior_confidence": 0.9474655985832214,
+    "prior_confident_fraction": 0.8693000078201294,
+    "prior_class_counts": [
+      883,
+      1324,
+      1050,
+      1078,
+      1023,
+      1155,
+      1005,
+      1249,
+      746,
+      487
+    ],
+    "prior_class_entropy": 2.272851145359561,
+    "prior_class_tv": 0.0847,
+    "first_five": {
+      "index": 0,
+      "split": "train",
+      "noise_seed": 2026,
+      "mu": [
+        -0.45143866539001465,
+        -0.38365262746810913
+      ],
+      "logvar": [
+        -8.048761367797852,
+        -7.031404972076416
+      ],
+      "std": [
+        0.017874490469694138,
+        0.029726913198828697
+      ],
+      "predictions": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "class5_probabilities": [
+        0.9999396800994873,
+        0.999977707862854,
+        0.9994413256645203,
+        0.9999914169311523,
+        0.9999874830245972,
+        0.999990701675415,
+        0.9999696016311646,
+        0.9999198913574219,
+        0.9999275207519531,
+        0.9999864101409912
+      ],
+      "pairwise_mae": 0.01743405871093273,
+      "input_mae": 0.07732894271612167
+    },
+    "reconstruction_label_accuracy": 0.8378999829292297
+  },
+  "vae_control": {
+    "posterior_l1": 53.706756591796875,
+    "posterior_l1_mc_se": 0.0064043342135846615,
+    "posterior_mae": 0.06850351393222809,
+    "mean_mae": 0.06746838241815567,
+    "kl": 6.829028129577637,
+    "config": {
+      "mode": "all",
+      "pretrain_epochs": 160,
+      "epochs": 80,
+      "classifier_epochs": 6,
+      "batch_size": 256,
+      "lr": 0.0001,
+      "adv_weight": 20,
+      "adv_warmup": 10,
+      "seed": 84
+    },
+    "feature_frechet": 54.547250974075496,
+    "prior_confidence": 0.9487751722335815,
+    "prior_confident_fraction": 0.8730000257492065,
+    "prior_class_counts": [
+      870,
+      1321,
+      1025,
+      1072,
+      1067,
+      1174,
+      1006,
+      1241,
+      745,
+      479
+    ],
+    "prior_class_entropy": 2.271979498361385,
+    "prior_class_tv": 0.08760000000000001,
+    "first_five": {
+      "index": 0,
+      "split": "train",
+      "noise_seed": 2026,
+      "mu": [
+        -0.46714216470718384,
+        -0.3804692029953003
+      ],
+      "logvar": [
+        -8.089899063110352,
+        -7.102535247802734
+      ],
+      "std": [
+        0.017510589212179184,
+        0.028688251972198486
+      ],
+      "predictions": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "class5_probabilities": [
+        0.9999475479125977,
+        0.9999791383743286,
+        0.9996225833892822,
+        0.9999910593032837,
+        0.9999874830245972,
+        0.9999905824661255,
+        0.9999731779098511,
+        0.9999330043792725,
+        0.9999303817749023,
+        0.9999867677688599
+      ],
+      "pairwise_mae": 0.017816685140132904,
+      "input_mae": 0.0773855671286583
+    },
+    "reconstruction_label_accuracy": 0.8391000032424927
+  },
+  "vaegan_no_noise": {
+    "posterior_l1": 56.201393127441406,
+    "posterior_l1_mc_se": 0.007440220098942518,
+    "posterior_mae": 0.07168544828891754,
+    "mean_mae": 0.0706213042140007,
+    "kl": 6.906917572021484,
+    "config": {
+      "mode": "all",
+      "pretrain_epochs": 160,
+      "epochs": 80,
+      "classifier_epochs": 6,
+      "batch_size": 256,
+      "lr": 0.0001,
+      "adv_weight": 20,
+      "adv_warmup": 10,
+      "seed": 84
+    },
+    "feature_frechet": 59.80968013843972,
+    "prior_confidence": 0.9613195061683655,
+    "prior_confident_fraction": 0.8919000029563904,
+    "prior_class_counts": [
+      850,
+      2016,
+      697,
+      1097,
+      1015,
+      1086,
+      988,
+      957,
+      896,
+      398
+    ],
+    "prior_class_entropy": 2.231493433152003,
+    "prior_class_tv": 0.12250000000000001,
+    "first_five": {
+      "index": 0,
+      "split": "train",
+      "noise_seed": 2026,
+      "mu": [
+        -0.5017067790031433,
+        -0.39148712158203125
+      ],
+      "logvar": [
+        -8.045310020446777,
+        -7.313371181488037
+      ],
+      "std": [
+        0.01790536195039749,
+        0.02581794373691082
+      ],
+      "predictions": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "class5_probabilities": [
+        0.9999117851257324,
+        0.9999637603759766,
+        0.9996635913848877,
+        0.9999843835830688,
+        0.999980092048645,
+        0.9999831914901733,
+        0.9999567270278931,
+        0.9998784065246582,
+        0.9998492002487183,
+        0.9999778270721436
+      ],
+      "pairwise_mae": 0.01675507426261902,
+      "input_mae": 0.0802941769361496
+    },
+    "reconstruction_label_accuracy": 0.8467000126838684
+  },
+  "vaegan_strong": {
+    "posterior_l1": 56.264129638671875,
+    "posterior_l1_mc_se": 0.008220878429710865,
+    "posterior_mae": 0.0717654675245285,
+    "mean_mae": 0.07070464640855789,
+    "kl": 6.9030070304870605,
+    "config": {
+      "mode": "gan",
+      "pretrain_epochs": 160,
+      "epochs": 80,
+      "classifier_epochs": 6,
+      "batch_size": 256,
+      "lr": 0.0001,
+      "adv_weight": 20,
+      "adv_warmup": 10,
+      "instance_noise": 0.05,
+      "seed": 84
+    },
+    "feature_frechet": 57.92990392410684,
+    "prior_confidence": 0.9585776329040527,
+    "prior_confident_fraction": 0.8866999745368958,
+    "prior_class_counts": [
+      847,
+      1999,
+      708,
+      1120,
+      1023,
+      1027,
+      1001,
+      971,
+      881,
+      423
+    ],
+    "prior_class_entropy": 2.235196369122934,
+    "prior_class_tv": 0.11930000000000002,
+    "first_five": {
+      "index": 0,
+      "split": "train",
+      "noise_seed": 2026,
+      "mu": [
+        -0.486802339553833,
+        -0.3870147466659546
+      ],
+      "logvar": [
+        -8.05915641784668,
+        -7.2875752449035645
+      ],
+      "std": [
+        0.017781827598810196,
+        0.026153098791837692
+      ],
+      "predictions": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "class5_probabilities": [
+        0.9999299049377441,
+        0.9999685287475586,
+        0.9997631907463074,
+        0.9999867677688599,
+        0.9999796152114868,
+        0.9999866485595703,
+        0.9999624490737915,
+        0.999915599822998,
+        0.9999295473098755,
+        0.9999798536300659
+      ],
+      "pairwise_mae": 0.018167391419410706,
+      "input_mae": 0.08668763190507889
+    },
+    "reconstruction_label_accuracy": 0.8454999923706055
+  },
+  "vaegan": {
+    "posterior_l1": 54.094703674316406,
+    "posterior_l1_mc_se": 0.006734047085046768,
+    "posterior_mae": 0.06899834424257278,
+    "mean_mae": 0.06796322762966156,
+    "kl": 6.8744730949401855,
+    "config": {
+      "mode": "gan",
+      "pretrain_epochs": 160,
+      "epochs": 80,
+      "classifier_epochs": 6,
+      "batch_size": 256,
+      "lr": 0.0001,
+      "adv_weight": 5.0,
+      "adv_warmup": 10,
+      "instance_noise": 0.05,
+      "run_name": "vaegan_balanced",
+      "seed": 84
+    },
+    "feature_frechet": 46.87011925879756,
+    "prior_confidence": 0.9527890682220459,
+    "prior_confident_fraction": 0.8827999830245972,
+    "prior_class_counts": [
+      871,
+      1336,
+      981,
+      1090,
+      1077,
+      1160,
+      1021,
+      1210,
+      768,
+      486
+    ],
+    "prior_class_entropy": 2.2733488880855424,
+    "prior_class_tv": 0.0889,
+    "first_five": {
+      "index": 0,
+      "split": "train",
+      "noise_seed": 2026,
+      "mu": [
+        -0.4709908962249756,
+        -0.38127461075782776
+      ],
+      "logvar": [
+        -8.084192276000977,
+        -7.175337791442871
+      ],
+      "std": [
+        0.017560625448822975,
+        0.027662739157676697
+      ],
+      "predictions": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "class5_probabilities": [
+        0.9999439716339111,
+        0.9999750852584839,
+        0.9996901750564575,
+        0.9999887943267822,
+        0.9999849796295166,
+        0.9999884366989136,
+        0.9999700784683228,
+        0.9999282360076904,
+        0.9999183416366577,
+        0.9999841451644897
+      ],
+      "pairwise_mae": 0.01829298958182335,
+      "input_mae": 0.07702717930078506
+    },
+    "reconstruction_label_accuracy": 0.8421000242233276
+  },
+  "experiment": {
+    "config": {
+      "mode": "gan",
+      "pretrain_epochs": 160,
+      "epochs": 80,
+      "classifier_epochs": 6,
+      "batch_size": 256,
+      "lr": 0.0001,
+      "adv_weight": 5.0,
+      "adv_warmup": 10,
+      "instance_noise": 0.05,
+      "run_name": "vaegan_balanced",
+      "seed": 84
+    },
+    "baseline_config": {
+      "epochs": 160,
+      "batch_size": 256,
+      "lr": 0.001,
+      "warmup": 15,
+      "seed": 42
+    },
+    "classifier_test_accuracy": 0.9884999990463257,
+    "vae_parameters": 1133844,
+    "discriminator_parameters": 435041,
+    "prior_samples": 10000,
+    "prior_seed": 2027,
+    "posterior_mc_draws": 10,
+    "posterior_seed": 43,
+    "test_class_counts": [
+      980,
+      1135,
+      1032,
+      1010,
+      982,
+      892,
+      958,
+      1028,
+      974,
+      1009
+    ],
+    "grid_count": 441,
+    "grid_min": -3,
+    "grid_max": 3,
+    "grid_step": 0.3,
+    "versions": {
+      "python": "3.12.13",
+      "torch": "2.11.0+cu130",
+      "torchvision": "0.26.0+cu130",
+      "numpy": "2.4.3",
+      "matplotlib": "3.10.8"
+    },
+    "classifier_epochs": 6
+  }
+}

@@ -1,6 +1,7 @@
 """Check objective units, gradient boundaries, sampling and report integrity."""
 import hashlib
 import json
+import csv
 import re
 import sys
 import tempfile
@@ -102,6 +103,16 @@ class ArtifactTests(unittest.TestCase):
         hashes = json.loads(Path("results/sha256.json").read_text())
         for name, expected in hashes.items():
             self.assertEqual(hashlib.sha256(Path(name).read_bytes()).hexdigest(), expected)
+        metrics = json.loads(Path("results/metrics.json").read_text())
+        for name in ("vae_control", "vaegan_no_noise", "vaegan_strong", "vaegan"):
+            with Path(f"results/{name}_history.csv").open() as stream:
+                history = list(csv.DictReader(stream))
+            self.assertEqual([int(r["epoch"]) for r in history], list(range(1, 81)))
+            self.assertEqual(sum(metrics[name]["prior_class_counts"]), 10000)
+            self.assertEqual(metrics[name]["first_five"]["index"], 0)
+            self.assertEqual(len(metrics[name]["first_five"]["predictions"]), 10)
+        self.assertEqual(metrics["experiment"]["grid_count"], 441)
+        self.assertGreater(metrics["experiment"]["classifier_test_accuracy"], 0.98)
 
     @unittest.skipUnless(Path("reports/vaegan_mnist_report.md").exists(), "Report pending")
     def test_report_is_complete_and_portable(self):

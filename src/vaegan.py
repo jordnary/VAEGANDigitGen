@@ -390,6 +390,18 @@ def make_figures(arrays, histories, test_y):
         ax.set_yticks([])
     fig.tight_layout()
     save_figure(fig, "prior_comparison.png")
+    fig, axes = plt.subplots(3, 1, figsize=(11, 5.5))
+    ablation_names = ["vaegan_no_noise", "vaegan_strong", "vaegan"]
+    ablation_labels = ["Weight 20 / noise 0", "Weight 20 / noise 0.05",
+                       "Weight 5 / noise 0.05"]
+    for ax, name, label in zip(axes, ablation_names, ablation_labels):
+        ax.imshow(mosaic(arrays[f"{name}_prior"][:32], 2, 16), cmap="gray_r",
+                  vmin=0, vmax=1, interpolation="nearest")
+        ax.set_ylabel(label, fontsize=8)
+        ax.set_xticks([])
+        ax.set_yticks([])
+    fig.tight_layout()
+    save_figure(fig, "ablation_comparison.png")
     fig, axes = plt.subplots(2, 2, figsize=(10, 6))
     for ax, key, title in zip(axes.flat[:2], ["l1", "kl"], ["L1 per image", "KL per image"]):
         for name, label in zip(names[1:], labels[1:]):
@@ -489,6 +501,7 @@ def generate(x, test, labels, test_y):
         vae_parameters=sum(p.numel() for p in model.parameters()),
         discriminator_parameters=sum(p.numel() for p in Discriminator().parameters()),
         prior_samples=10000, prior_seed=2027, posterior_mc_draws=10, posterior_seed=43,
+        test_class_counts=torch.bincount(test_y.cpu(), minlength=10).tolist(),
         grid_count=441, grid_min=-3, grid_max=3, grid_step=0.3,
         versions=dict(python=sys.version.split()[0], torch=torch.__version__,
                       torchvision=torchvision.__version__, numpy=np.__version__,
