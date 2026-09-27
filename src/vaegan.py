@@ -1,5 +1,6 @@
 """Reproduce two-dimensional MNIST VAE-GAN training and evaluation."""
 import argparse
+import copy
 import csv
 import hashlib
 import json
@@ -183,7 +184,11 @@ def train_variant(x, args, adversarial):
     order_rng = torch.Generator(device=x.device).manual_seed(args.seed + 1)
     noise_rng = torch.Generator(device=x.device).manual_seed(args.seed + 2)
     prior_rng = torch.Generator(device=x.device).manual_seed(args.seed + 3)
-    name = "vaegan" if adversarial else "vae_control"
+    disc_rng = torch.Generator(device=x.device).manual_seed(args.seed + 4)
+    name = args.run_name if adversarial else "vae_control"
+    def noisy(images):
+        noise = torch.randn(images.shape, device=x.device, generator=disc_rng)
+        return images + args.instance_noise * noise
     rows = []
     for epoch in range(1, args.epochs + 1):
         model.train()
@@ -203,14 +208,15 @@ def train_variant(x, args, adversarial):
                 prior = model.decoder(z)
                 disc.train().requires_grad_(True)
                 opt_d.zero_grad(set_to_none=True)
-                dr, dq, dp = disc(batch), disc(pred.detach()), disc(prior.detach())
+                dr = disc(noisy(batch))
+                dq, dp = disc(noisy(pred.detach())), disc(noisy(prior.detach()))
                 ld = d_loss(dr, dq, dp)
                 ld.backward()
                 nn.utils.clip_grad_norm_(disc.parameters(), 10)
                 opt_d.step()
                 opt_d.zero_grad(set_to_none=True)
                 disc.eval().requires_grad_(False)
-                adv = g_loss(disc(pred), disc(prior))
+                adv = g_loss(disc(noisy(pred)), disc(noisy(prior)))
                 real_score = dr.detach().mean()
                 fake_score = 0.5 * (dq.detach().mean() + dp.detach().mean())
             objective = l1 + kl + weight * adv
@@ -431,21 +437,24 @@ def generate(x, test, labels, test_y):
     arrays = dict(grid_z=grid_z.numpy(), prior_z=prior_z.numpy(), epsilon=eps.numpy(),
                   first_five=original.cpu().numpy(), class_inputs=test[ids].cpu().numpy())
     metrics, histories = {}, {}
-    for name in ["vae_base", "vae_control", "vaegan"]:
+    for name in ["vae_base", "vae_control", "vaegan_no_noise", "vaegan_strong", "vaegan"]:
         model, checkpoint = load_vae(f"{name}.pt", x.device)
         model.eval()
         result, test_mu = evaluate(model, test)
+        result["config"] = checkpoint["config"]
         prior = torch.cat([model.decoder(z.to(x.device)) for z in prior_z.split(512)])
         probabilities, features = classify(classifier, prior)
         counts = torch.bincount(probabilities.argmax(1), minlength=10)
         real_counts = torch.bincount(test_y.cpu(), minlength=10)
         proportions = counts.double() / len(prior)
         target_proportions = real_counts.double() / len(test)
+        confidence = probabilities.max(1).values
         result.update(feature_frechet=feature_distance(real_features, features),
-                      prior_confidence=float(probabilities.max(1).values.mean()),
-                      prior_confident_fraction=float((probabilities.max(1).values >= 0.9).float().mean()),
+                      prior_confidence=float(confidence.mean()),
+                      prior_confident_fraction=float((confidence >= 0.9).float().mean()),
                       prior_class_counts=counts.tolist(),
-                      prior_class_entropy=float(-(proportions * proportions.clamp_min(1e-12).log()).sum()),
+                      prior_class_entropy=float(-(
+                          proportions * proportions.clamp_min(1e-12).log()).sum()),
                       prior_class_tv=float((proportions - target_proportions).abs().sum() / 2))
         grid = model.decoder(grid_z.to(x.device))
         mu, lv = model.encode(original)
@@ -468,6 +477,7 @@ def generate(x, test, labels, test_y):
                 class_recon=mean_recons[ids]).items():
             arrays[f"{name}_{suffix}"] = value.cpu().numpy()
         histories[name] = checkpoint["history"]
+        write_csv(OUT / f"{name}_history.csv", checkpoint["history"])
         metrics[name] = result
         print(f"{name}: MAE={result['posterior_mae']:.6f}, "
               f"feature distance={result['feature_frechet']:.3f}, "
@@ -475,7 +485,7 @@ def generate(x, test, labels, test_y):
     model, checkpoint = load_vae("vaegan.pt", x.device)
     metrics["experiment"] = dict(config=checkpoint["config"],
         baseline_config=load_vae("vae_base.pt", x.device)[1]["config"],
-        classifier_test_accuracy=accuracy, classifier_epochs=len(checkpoint["history"]),
+        classifier_test_accuracy=accuracy,
         vae_parameters=sum(p.numel() for p in model.parameters()),
         discriminator_parameters=sum(p.numel() for p in Discriminator().parameters()),
         prior_samples=10000, prior_seed=2027, posterior_mc_draws=10, posterior_seed=43,
@@ -500,19 +510,25 @@ def generate(x, test, labels, test_y):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--mode", choices=["all", "pretrain", "gan", "control", "classifier", "generate"], default="all")
+    parser.add_argument("--mode", default="all", choices=[
+        "all", "pretrain", "gan", "ablation", "control", "classifier", "generate"])
     parser.add_argument("--pretrain-epochs", type=int, default=160)
     parser.add_argument("--epochs", type=int, default=80)
     parser.add_argument("--classifier-epochs", type=int, default=6)
     parser.add_argument("--batch-size", type=int, default=256)
     parser.add_argument("--lr", type=float, default=1e-4)
-    parser.add_argument("--adv-weight", type=float, default=20)
+    parser.add_argument("--adv-weight", type=float, default=5)
     parser.add_argument("--adv-warmup", type=int, default=10)
+    parser.add_argument("--instance-noise", type=float, default=0.05)
+    parser.add_argument("--run-name", default="vaegan", choices=[
+        "vaegan", "vaegan_no_noise", "vaegan_strong", "vaegan_balanced"])
     parser.add_argument("--seed", type=int, default=84)
     args = parser.parse_args()
     if min(args.pretrain_epochs, args.epochs, args.classifier_epochs,
            args.batch_size, args.adv_warmup) < 1 or args.lr <= 0 or args.adv_weight < 0:
         parser.error("Invalid training configuration")
+    if args.instance_noise < 0:
+        parser.error("Instance noise must be nonnegative")
     seed_all(args.seed)
     ART.mkdir(exist_ok=True)
     OUT.mkdir(exist_ok=True)
@@ -522,6 +538,14 @@ def main():
         pretrain(x, args)
     if args.mode in ("all", "gan"):
         train_variant(x, args, True)
+    if args.mode in ("all", "ablation"):
+        ablation_args = copy.copy(args)
+        ablation_args.adv_weight = 20.0
+        ablation_args.run_name = "vaegan_strong"
+        train_variant(x, ablation_args, True)
+        ablation_args.instance_noise = 0.0
+        ablation_args.run_name = "vaegan_no_noise"
+        train_variant(x, ablation_args, True)
     if args.mode in ("all", "control"):
         train_variant(x, args, False)
     if args.mode in ("all", "classifier"):

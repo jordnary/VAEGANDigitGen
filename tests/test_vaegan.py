@@ -3,12 +3,16 @@ import hashlib
 import json
 import re
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from vaegan import (VAE, Discriminator, d_loss, g_loss, loss_terms,
                     make_grid, feature_distance, np, torch, seed_all)
+import vaegan
 
 
 class MathematicsTests(unittest.TestCase):
@@ -61,6 +65,28 @@ class MathematicsTests(unittest.TestCase):
         features = np.random.default_rng(7).normal(size=(100, 4))
         self.assertAlmostEqual(feature_distance(features, features), 0., places=8)
         self.assertAlmostEqual(feature_distance(features, features + 1), 4., places=8)
+
+    def test_standalone_pretrain_and_continuation(self):
+        args = SimpleNamespace(pretrain_epochs=1, epochs=1, batch_size=4,
+            seed=84, lr=1e-4, adv_weight=20., adv_warmup=10, classifier_epochs=1,
+            instance_noise=0.05, run_name="vaegan")
+        workspace = vaegan.ROOT / "tmp"
+        workspace.mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=workspace) as directory:
+            folder = Path(directory)
+            self.assertTrue(folder.resolve().is_relative_to(workspace.resolve()))
+            with patch.object(vaegan, "ART", folder), patch.object(vaegan, "OUT", folder):
+                x = torch.rand(8, 784)
+                vaegan.pretrain(x, args)
+                base = vaegan.load_vae("vae_base.pt", x.device)[0]
+                vaegan.train_variant(x, args, True)
+                vaegan.train_variant(x, args, False)
+                gan = vaegan.load_vae("vaegan.pt", x.device)[0]
+                control = vaegan.load_vae("vae_control.pt", x.device)[0]
+                self.assertFalse(torch.equal(base.mu.weight, gan.mu.weight))
+                self.assertFalse(torch.equal(gan.mu.weight, control.mu.weight))
+                vaegan.train_classifier(x, torch.arange(8), args)
+                self.assertTrue((folder / "classifier.pt").is_file())
 
 
 class ArtifactTests(unittest.TestCase):
