@@ -1,0 +1,25 @@
+# Local data, model weights, caches and private configuration.
+data/*
+!data/.gitkeep
+artifacts/*
+!artifacts/.gitkeep
+tmp/
+output/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.env
+.env.*
+*.log
+*.tmp
+*.pt
+*.pth
+*.ckpt
+*.sqlite*
+*.db
+*.pem
+*.key
+*.pfx
+*.p12
+.ipynb_checkpoints/
