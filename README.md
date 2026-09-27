@@ -2,7 +2,7 @@
 
 本项目继承二维 VAE，增加具有谱归一化的卷积判别器，使用 L1 重构、KL 正则与最小二乘对抗目标。包含相同生成模型更新轮次的纯 VAE 对照、实例噪声与对抗权重消融，以及独立分类器评价。
 
-完整成稿为 `reports/vaegan_mnist_report.md`，正文包含方法、全部指定生成结果、实际实验数据与局限，附录包含不超过 800 行的完整可运行实现。报告可独立阅读，复现无需随附预训练权重。未生成 PDF。
+报告源稿为 `reports/vaegan_mnist_report.md`，提交版为 `output/pdf/vaegan_mnist_report.pdf`。PDF 包含方法、全部指定生成结果、实际实验数据与局限，以及 576 行完整可运行代码，可独立提交，复现无需随附源码或预训练权重。
 
 ## 项目结构
 
@@ -57,6 +57,17 @@ python src/vaegan.py --mode generate
 | `results/provenance.json` | 原有检查点核验与公开数据的摘要 |
 | `results/sha256.json` | 当前实现、模型与结果的完整性摘要 |
 
-报告图像使用相对路径引用。导出 Markdown 时，保留 `reports/` 与 `results/` 的相对位置，并确保导出工具支持 LaTeX 公式、表格与代码换页。全文不依赖外部代码附件；模型、数据、原始浮点数组、初步实验备份和缓存不纳入版本控制。
+## PDF 导出
+
+在项目根目录执行：
+
+```powershell
+python -m pip install -r scripts/requirements-pdf.txt
+python scripts/export_pdf.py
+```
+
+导出使用 Pandoc 与 Typst，字体为 Windows 提供的 SimSun、SimHei、Cambria、Cambria Math 和 Consolas。标题居中；正文数字与公式字号协调；PDF 书签包含报告标题、章节与附录，正文不另设目录页。元数据仅保留报告标题，移除作者、软件标识、时间、XMP 与文档标识符。源稿附录代码须与 `src/vaegan.py` 一致，导出时自动核验。
+
+图像通过相对路径引用，导出后嵌入 PDF。最终 PDF 位于 `output/pdf/`，排版中间文件位于 `tmp/pdfs/`；二者均不纳入版本控制。模型、数据、原始浮点数组、初步实验备份和缓存也不纳入版本控制。
 
 所有生成图像统一灰度范围，未进行二值化、锐化或样本筛选。识别置信度不等于生成准确率；使用 MNIST 分类器特征的 Fréchet 距离不属于标准 Inception FID。报告同时披露重构误差、分布差异及探索性比较的限制。
